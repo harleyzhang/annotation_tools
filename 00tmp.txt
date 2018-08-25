@@ -1,0 +1,9 @@
+Working log
+
+  * install MongoDB according to 
+    https://docs.mongodb.com/manual/tutorial/install-mongodb-on-ubuntu/
+
+
+
+
+
