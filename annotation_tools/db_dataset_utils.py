@@ -56,6 +56,14 @@ from pymongo.errors import BulkWriteError
 from annotation_tools.annotation_tools import get_db
 from annotation_tools.utils import COLOR_LIST
 
+import annotation_tools.default_config as cfg
+
+import urllib.request
+import tempfile
+import os
+import cv2
+import datetime
+
 DUPLICATE_KEY_ERROR_CODE = 11000
 
 def drop_dataset(db):
@@ -76,6 +84,74 @@ def ensure_dataset_indices(db):
   db.annotation.create_index("id", unique=True)
   db.annotation.create_index("image_id")
   db.license.create_index("id", unique=True)
+
+def add_image(db, url, license=7):
+  """ Add an image to the dataset. 
+      Download the image from the specified URL and stored to the local image directory.
+  Args: 
+     db
+     dataset
+     url 
+  """
+  print("Adding an image")
+
+  #check if url is already in db
+  item = db.image.find_one({"url":url})
+  if item:
+    print("The image with that URL is already in the dataset. URL = {}".format(url))
+    print(item)
+    return
+
+  #check if the image can be downloaded
+  tmp_fname = os.path.join(tempfile.gettempdir(), 'visidown.jpg')
+  if os.path.exists(tmp_fname): os.remove(tmp_fname)
+  try:
+    urllib.request.urlretrieve(url, tmp_fname)
+  except:
+    print("The image file cannot be downloaded!")
+    return
+
+  #check if file is valid
+  img = cv2.imread(tmp_fname)
+
+  if img is None:
+    print("The file is not a valid image file")
+
+  #get a valid image id
+  img_id = 1
+  item = db.image.find_one(sort=[("id", -1)])
+  if item:
+    img_id = int(item["id"])+1
+
+
+  #file name
+  img_fname = "{:012d}.jpg".format(img_id)
+
+  img_item = {
+    "license" : "7",
+    "file_name" : img_fname,
+    "coco_url" : "", 
+    "height" : str(img.shape[0]),
+    "width" : str(img.shape[1]),
+    "date_capture" : str(datetime.datetime.now()),
+    "flickr_url" : "",
+    "url" : url, 
+    "id" : str(img_id),
+    "rights_holder" : "" }
+
+  print(img_item)
+
+  #save the file into dataset local directory
+  ofname = os.path.join(cfg.LOCAL_IMAGES_DIR, img_fname)
+  print(ofname)
+  cv2.imwrite(ofname, img)
+
+  db.image.insert_one(img_item)
+
+  print("A new image is added to the dataset")
+
+
+  
 
 def load_dataset(db, dataset, normalize=False):
   """ Load a COCO style dataset.
@@ -244,24 +320,29 @@ def parse_args():
 
   parser = argparse.ArgumentParser(description='Dataset loading and exporting utilities.')
 
-  parser.add_argument('-a', '--action', choices=['drop', 'load', 'export'], dest='action',
-                      help='The action you would like to perform.', required=True)
+  parser.add_argument('-a', '--action', 
+     choices=['drop', 'load', 'export',  'add_img'], dest='action',
+     help='The action you would like to perform.', required=True)
 
   parser.add_argument('-d', '--dataset', dest='dataset_path',
-                        help='Path to a json dataset file. Used with the `load` action.', type=str,
-                        required=False)
+     help='Path to a json dataset file. Used with the `load` action.', type=str,
+     required=False)
 
   parser.add_argument('-n', '--normalize', dest='normalize',
-                        help='Normalize the annotations prior to inserting them into the database. Used with the `load` action.',
-                        required=False, action='store_true', default=False)
+     help='Normalize the annotations prior to inserting them into the database. Used with the `load` action.',
+     required=False, action='store_true', default=False)
 
   parser.add_argument('-u', '--denormalize', dest='denormalize',
-                        help='Denormalize the annotations when exporting the database. Used with the `export` action.',
-                        required=False, action='store_true', default=False)
+     help='Denormalize the annotations when exporting the database. Used with the `export` action.',
+     required=False, action='store_true', default=False)
+
+  parser.add_argument('-i', '--img_url', dest='img_url',
+     help='URL of the image to be added.', type=str,
+     required=False)
 
   parser.add_argument('-o', '--output', dest='output_path',
-                        help='Save path for the json dataset. Used with the `export` action.', type=str,
-                        required=False)
+     help='Save path for the json dataset. Used with the `export` action.', type=str,
+     required=False)
 
 
   args = parser.parse_args()
@@ -283,6 +364,11 @@ def main():
     dataset = export_dataset(db, denormalize=args.denormalize)
     with open(args.output_path, 'w') as f:
       json.dump(dataset, f)
+  elif action == 'add_img':
+    if not args.img_url:
+      print("Image URL is not specified! Give image url by argument --img_url. ")
+    else:
+      add_image(db, args.img_url)
 
 if __name__ == '__main__':
 

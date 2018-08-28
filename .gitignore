@@ -169,3 +169,8 @@ typings/
 ###################
 # Mac stuff
 .DS_Store
+
+
+###################
+# Testing stuff
+db_tools/testdb.json

@@ -1,4 +1,26 @@
+
+idea:
+
+  first collect a dataset
+    store all information like in coco
+
+  
+
+mongo shell command
+
+  * start mongo: mongo
+  > show dbs
+  > use anntest
+  > show collections
+  > db.image.find()
+  > db.annotation.find()
+
+  * somehow, in the plural form is not used. interesting
+
+
+
 Working log
+  * install annotation tool
 
   * install MongoDB according to 
     https://docs.mongodb.com/manual/tutorial/install-mongodb-on-ubuntu/
