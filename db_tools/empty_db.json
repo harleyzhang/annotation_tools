@@ -1,11 +1,11 @@
 {
     "info": {
-        "description": "COCO 2017 Dataset",
-        "url": "http://cocodataset.org",
-        "version": "1.0",
-        "year": 2017,
-        "contributor": "COCO Consortium",
-        "date_created": "2017/09/01"
+        "description": "Testing Dataset",
+        "url": "", 
+        "version": "0.1",
+        "year": 2018,
+        "contributor": "Honglei Zhang",
+        "date_created": "2018/08/29"
     },
     "licenses": [
         {

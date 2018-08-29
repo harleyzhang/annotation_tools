@@ -123,6 +123,7 @@ def add_image(db, url, license=7):
   #get a valid image id
   img_id = 1
   item = db.image.find_one(sort=[("id", -1)])
+  #print("max id:{}".format(item["id"]))
   if item:
     img_id = int(item["id"])+1
 
@@ -136,12 +137,12 @@ def add_image(db, url, license=7):
     "license" : "7",
     "file_name" : img_fname,
     "coco_url" : "", 
-    "height" : str(img.shape[0]),
-    "width" : str(img.shape[1]),
+    "height" : img.shape[0],
+    "width" : img.shape[1],
     "date_capture" : str(datetime.datetime.now()),
     "flickr_url" : url,
     "url" : local_url, 
-    "id" : str(img_id),
+    "id" : img_id,
     "rights_holder" : "" }
 
   print(img_item)
