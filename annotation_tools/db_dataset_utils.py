@@ -96,20 +96,23 @@ def add_image(db, url, license=7):
   print("Adding an image")
 
   #check if url is already in db
-  item = db.image.find_one({"url":url})
+  item = db.image.find_one({"flickr_url":url})
   if item:
     print("The image with that URL is already in the dataset. URL = {}".format(url))
-    print(item)
+    #print(item)
     return
 
-  #check if the image can be downloaded
-  tmp_fname = os.path.join(tempfile.gettempdir(), 'visidown.jpg')
-  if os.path.exists(tmp_fname): os.remove(tmp_fname)
-  try:
-    urllib.request.urlretrieve(url, tmp_fname)
-  except:
-    print("The image file cannot be downloaded!")
-    return
+  if url.lower().startswith("file://"):
+    tmp_fname = url[7:]
+  else:
+    #check if the image can be downloaded
+    tmp_fname = os.path.join(tempfile.gettempdir(), 'visidown.jpg')
+    if os.path.exists(tmp_fname): os.remove(tmp_fname)
+    try:
+      urllib.request.urlretrieve(url, tmp_fname)
+    except:
+      print("The image file cannot be downloaded!")
+      return
 
   #check if file is valid
   img = cv2.imread(tmp_fname)
@@ -127,6 +130,8 @@ def add_image(db, url, license=7):
   #file name
   img_fname = "{:012d}.jpg".format(img_id)
 
+  local_url = "http://localhost:{}/{}".format(cfg.LOCAL_IMAGES_HTTP_PORT, img_fname)
+
   img_item = {
     "license" : "7",
     "file_name" : img_fname,
@@ -134,8 +139,8 @@ def add_image(db, url, license=7):
     "height" : str(img.shape[0]),
     "width" : str(img.shape[1]),
     "date_capture" : str(datetime.datetime.now()),
-    "flickr_url" : "",
-    "url" : url, 
+    "flickr_url" : url,
+    "url" : local_url, 
     "id" : str(img_id),
     "rights_holder" : "" }
 
