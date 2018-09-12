@@ -40,6 +40,7 @@ def edit_image(image_id):
   """
 
   image = mongo.db.image.find_one_or_404({'id' : image_id})
+  print(image)
   annotations = list(mongo.db.annotation.find({'image_id' : image_id}))
   categories = list(mongo.db.category.find())
 

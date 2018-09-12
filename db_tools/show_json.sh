@@ -6,5 +6,7 @@ else
   fname=$1
 fi
 
-python -m json.tool $fname | less
+#python -m json.tool $fname | less
+python -m json.tool $fname > tmp.txt
+
 

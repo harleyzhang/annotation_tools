@@ -63,6 +63,7 @@ import tempfile
 import os
 import cv2
 import datetime
+from pymongo.collation import Collation
 
 DUPLICATE_KEY_ERROR_CODE = 11000
 
@@ -122,10 +123,14 @@ def add_image(db, url, license=7):
 
   #get a valid image id
   img_id = 1
-  item = db.image.find_one(sort=[("id", -1)])
+  item = db.image.find_one(
+    sort=[("id", -1)], 
+    collation=Collation(locale="en_US", numericOrdering=True))
   #print("max id:{}".format(item["id"]))
   if item:
     img_id = int(item["id"])+1
+
+  print("img_id:{}".format(img_id))
 
 
   #file name
@@ -142,7 +147,7 @@ def add_image(db, url, license=7):
     "date_capture" : str(datetime.datetime.now()),
     "flickr_url" : url,
     "url" : local_url, 
-    "id" : img_id,
+    "id" : str(img_id),
     "rights_holder" : "" }
 
   print(img_item)
@@ -239,6 +244,7 @@ def load_dataset(db, dataset, normalize=False):
       anno['id'] = str(anno['id'])
       anno['image_id'] = str(anno['image_id'])
       anno['category_id'] = str(anno['category_id'])
+    
 
     if normalize:
       image_id_to_w_h = {image['id'] : (float(image['width']), float(image['height']))
@@ -305,10 +311,15 @@ def export_dataset(db, denormalize=False):
       image_width, image_height = image_id_to_w_h[anno['image_id']]
       x, y, w, h = anno['bbox']
       anno['bbox'] = [round(v, 2) for v in [x * image_width, y * image_height, w * image_width, h * image_height]]
+      anno['area'] = w * h * image_width * image_height
+      anno['iscrowd'] = 0
       if 'keypoints' in anno:
+        anno['num_keypoints'] = 0
         for pidx in range(0, len(anno['keypoints']), 3):
-          x, y = anno['keypoints'][pidx:pidx+2]
+          x, y, v = anno['keypoints'][pidx:pidx+3]
           anno['keypoints'][pidx:pidx+2] = [round(x * image_width, 2), round(y * image_height, 2)]
+          if v>0: anno['num_keypoints'] += 1
+
 
   licenses = list(db.license.find(projection={'_id' : False}))
   print("Found %d licenses" % (len(licenses),))

@@ -10,11 +10,15 @@ cd $img_dir
 #for python3
 python -m http.server $img_port &
 
+img_server_pid=$!
+echo $img_server_pid
+
 popd
 
 
-python run.py --port 8008 && fg
+python run.py --port 8008 
 
+kill $img_server_pid
 
 
 

@@ -2,7 +2,7 @@
 Default configurations.
 """
 
-MONGO_URI = "mongodb://localhost:27017/baby"
+MONGO_URI = "mongodb://localhost:27017/baby2"
 
 # directory struction of local dataset
 LOCAL_DATASET_DIR = "/home/honglei/Data/Baby"
