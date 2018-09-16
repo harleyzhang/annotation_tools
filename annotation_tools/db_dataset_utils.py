@@ -17,7 +17,7 @@ image{
 annotation{
   "id" : str,
   "image_id" : str,
-  "category_id" : str,
+  "category_id" : str,  # this should be int according to coco specification
   "segmentation" : RLE or [polygon],
   "area" : float,
   "bbox" : [x,y,width,height],
@@ -313,6 +313,9 @@ def export_dataset(db, denormalize=False):
       anno['bbox'] = [round(v, 2) for v in [x * image_width, y * image_height, w * image_width, h * image_height]]
       anno['area'] = w * h * image_width * image_height
       anno['iscrowd'] = 0
+      #add empty segmentation
+      anno['segmentation'] = []
+
       if 'keypoints' in anno:
         anno['num_keypoints'] = 0
         for pidx in range(0, len(anno['keypoints']), 3):
@@ -331,7 +334,28 @@ def export_dataset(db, denormalize=False):
     'licenses' : licenses
   }
 
-  return dataset
+  return cnvt_coco_format(dataset)
+
+# convert internal format to coco format where ids are int
+def cnvt_coco_format(db):
+  for cat in db['categories']:
+    cat['id'] = int(cat['id'])
+
+  anno_id = 0
+  for anno in db['annotations']:
+    anno['category_id'] = int(anno['category_id'])
+    anno['image_id'] = int(anno['image_id'])
+    anno['id'] = anno_id
+    anno_id += 1
+
+  for img in db['images']:
+    img['id'] = int(img['id'])
+    img['license'] = int(img['license'])
+
+  for lic in db['licenses']:
+    lic['id'] = int(lic['id'])
+
+  return db
 
 def parse_args():
 
