@@ -7,6 +7,8 @@ cd $img_dir
 #for python2
 #python -m SimpleHTTPServer $img_port &
 
+echo image dir: $img_dir
+
 #for python3
 python -m http.server $img_port &
 

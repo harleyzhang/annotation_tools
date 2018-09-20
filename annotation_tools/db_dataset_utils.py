@@ -59,6 +59,7 @@ from annotation_tools.utils import COLOR_LIST
 import annotation_tools.default_config as cfg
 
 import urllib.request
+import uuid
 import tempfile
 import os
 import cv2
@@ -158,6 +159,22 @@ def add_image(db, url, license=7):
   cv2.imwrite(ofname, img)
 
   db.image.insert_one(img_item)
+
+  #get a valid ann id
+  ann_id = uuid.uuid4() 
+  print("ann_id:{}".format(ann_id))
+
+
+  # save a empty annotation item
+  ann_item = {
+    "bbox" : [],
+    "category_id" : "1",
+    "id" : str(ann_id),
+    "image_id" : str(img_id),
+    "keypoints" : [] }
+
+  #db.annotation.insert_one(ann_item)
+ 
 
   print("A new image is added to the dataset")
 
