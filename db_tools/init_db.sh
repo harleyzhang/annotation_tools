@@ -15,3 +15,4 @@ python -m annotation_tools.db_dataset_utils --action load \
   --normalize
 
 popd
+exit 0
