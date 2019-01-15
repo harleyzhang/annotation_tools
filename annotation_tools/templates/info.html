@@ -1,0 +1,40 @@
+{% extends "layout.html" %}
+{% block title %}Annotation Tool{% endblock %}
+{% block head %}
+{% endblock %}
+{% block modals %}
+  <script type="text/javascript">
+    // the image ID is the index + 1
+    function do_submit_edit_task(){
+       document.edit_task.start.value -= 1;
+       return true;
+    }
+
+    function edit_image() {
+       var obj = document.getElementById("edit_image_id");
+       var img_id = obj.value;
+       var dst = "/edit_image/" + img_id;
+       window.location = dst
+    }
+  </script>
+
+  <br><br><br>
+
+  <center>
+  <h2> Annotate Multiple Images </h2>
+    <form name="edit_task" action="/edit_task/" onsubmit="do_submit_edit_task()">
+      Start: <input type="text" name="start" value="1"/>
+      End: <input type="text" name="end" value="100000"/> 
+      <input type="submit" value="Annotate Images"/> 
+    </form>
+ 
+  <br><br><br>
+      
+  <h2> Annotate Single Image </h2>
+    <span>
+      Image ID: <input type="text" id="edit_image_id" value="1"/>
+      <input type="submit" value="Annotate Image" onClick="edit_image()"/> 
+    </span>
+  </center>
+ 
+{% endblock %}

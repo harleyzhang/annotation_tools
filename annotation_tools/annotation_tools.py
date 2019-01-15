@@ -31,7 +31,7 @@ def get_db():
 
 @app.route('/')
 def home():
-  return render_template('layout.html')
+  return render_template('info.html')
 
 
 @app.route('/edit_image/<image_id>')
