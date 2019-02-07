@@ -388,11 +388,11 @@ def parse_args():
 
   parser.add_argument('-n', '--normalize', dest='normalize',
      help='Normalize the annotations prior to inserting them into the database. Used with the `load` action.',
-     required=False, action='store_true', default=False)
+     required=False, action='store_true', default=True)
 
   parser.add_argument('-u', '--denormalize', dest='denormalize',
      help='Denormalize the annotations when exporting the database. Used with the `export` action.',
-     required=False, action='store_true', default=False)
+     required=False, action='store_true', default=True)
 
   parser.add_argument('-i', '--img_url', dest='img_url',
      help='URL of the image to be added.', type=str,
